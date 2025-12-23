@@ -6,3 +6,8 @@ venv
 
 # macOS
 *.DS_STORE
+
+#data
+
+data/processed/*
+data/raw/*
