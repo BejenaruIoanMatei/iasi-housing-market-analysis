@@ -184,10 +184,13 @@ Interpretare practica:
   
   - Intr-o masura mai mica, familii mai mari (3 camere)
   
+Frecventa absoluta:
 
 ```{r}
 table(df$Camere)
 ```
+
+Frecventa relativa:
 
 ```{r}
 prop.table(table(df$Camere))
@@ -195,10 +198,68 @@ prop.table(table(df$Camere))
 
 Jumatate (50%) din numarul de oferte sunt apartamente de 2 camere.
 
+### Analiza variabilelor categoriale
 
+Analiza frecventei pentru Tip_Zona:
 
+```{r}
+tab_zona <- table(df$Tip_Zona)
+barplot(tab_zona, main="Distributia ofertelor pe Tip de Zona", las=2)
+```
 
+```{r}
+tab_zona <- table(df$Zona)
+barplot(tab_zona, main="Distributia ofertelor pe Tip de Zona", las=2)
+```
 
+Se observa cum pentru unele zone nu sunt destule observatii, cum ar fi "Periferie-Metropolitana", "Bucium".
 
+### Cum s-a realizat maparea la zone:
+
+'Nicolina-CUG': ['Nicolina 1', 'Nicolina 2', 'CUG', 'Hlincea', 'Tudor Neculai', 'Soseaua Nicolina', 'Poitiers', 'Manta Rosie'],
+
+'Centru-Civic': ['Centru', 'Palas', 'Independentei', 'Academiei', 'Ion Creanga', 'Carol I', 'Anastasie Panu', 'Cuza Voda', 'Arcu', 'Smardan', 'Podu de Fier'],
+
+'Podu-Ros-Cantemir': ['Podu Ros', 'Cantemir', 'Tesatura'],
+
+'Tatarasi-Tudor': ['Tatarasi Sud', 'Tatarasi Nord', 'Vasile Lupu', 'Oancea', 'Tudor Vladimirescu', 'Baza 3'],
+
+'Pacurari-Canta': ['Pacurari', 'Canta', 'Moara de Foc'],
+
+'Copou-Saras': ['Copou', 'Agronomie', 'Sadoveanu', 'Agronomilor', 'Moara de Vant', 'Ticau'],
+
+'Alexandru-Dacia': ['Alexandru Cel Bun', 'Dacia', 'Mircea cel Batran', 'Bularga', 'Decebal'],
+
+'Bucium': ['Bucium', 'Visan', 'Barnova'],
+
+'Galata-Frumoasa': ['Galata', 'Frumoasa', 'Ciurea', 'Bisericii'],
+
+'Periferie-Metropolitana': ['Miroslava', 'Rediu', 'Dancu', 'Aroneanu', 'Valea Lupului', 'Voinesti']
+    
+### Variabila "Tip_Zona"
+
+- Premium: Copou-Saras, Centru-Civic
+
+- Standard/Urban: Tatarasi-Tudor, Podu-Ros-Cantemir, Pacurari-Canta, Alexandru-Dacia
+
+- Accesibil/Rezidential: Nicolina-CUG, Galata-Frumoasa
+
+- Periferie: Bucium, Periferie-Metropolitana
+
+### De ce ?
+
+In statistica, pentru ca un grup sa fie relevant, este recomandat sa aiba macar 30 de observatii sau macar un numar apropiat. In cazul nostru sunt cateva sub 30 de observatii, dar care ar putea fi grupate in zone mai generale pentru a creste numarul de observatii.
+
+### Proportii vechime imobil:
+
+```{r}
+prop.table(table(df$Vechime_Imobil))
+```
+
+Cea mai mare majoritate a blocurilor sunt clasice (perioada 1977-2000), urmand cele Noi (>2000)
+
+```{r}
+
+```
 
 
