@@ -5,4 +5,200 @@ date: "2026-01-07"
 output: pdf_document
 ---
 
+# Exploratory Analysis
+
+### Introducere
+
+Obiectivul proiectului:
+
+- Analiza mecanismelor de formare a pretului pe piata imobiliara din Iasi. Cercetarea se concentreaza pe identificarea si cuantificarea relatiilor de dependenta dintre pretul de vanzare al apartamentelor (variabila dependenta) si principalii factori de influenta, cum ar fi suprafata utila, numarul de camere (variabile independente).
+
+Vom folosi setul de date obtinut prin scraping si curatat in notebooks/2_data_cleaning_etl.ipynb (toti pasii urmati pentru a curata setul de date sunt explicati in acest notebook)
+
+```{r}
+library(dplyr)
+```
+
+Incarcarea setului de date:
+
+```{r}
+df <- read.csv('../data/processed/2_clean_data.csv')
+
+head(df, n = 5)
+```
+### Prezentarea bazei de date
+
+Datele folosite sunt reale, obtinute din anunturi imobiliare de pe Storia, prin web scraping.
+
+Esantionul cu care vom lucra contine 520 de observatii si 7 variabile.
+
+**Structura bazei de date**:
+
+- **Pret (numeric)**: pretul apartamentului, in euro. Este variabila pe care dorim sa o explicam.
+
+- **Suprafata_Utila (numeric)**: suprafata apartamentului, in metri patrati. In mod intuitiv, se asteapta o corelatie pozitiva puternica cu pretul.
+
+- **Camere (numeric/factor)**: numarul de camere. Variabila va fi tratata ca numeric pentru a permite calculul coeficientilor de corelatie bivariata si testarea liniaritatii.
+
+- **Pret_mp (numeric)**: pretul pe metru patrat, obtinut prin (Pret / Suprafata Utila)
+
+- **Zona (factor)**: o zona din Iasi, de exemplu "Nicolina-CUG", "Bucium", "Alexandru-Dacia"
+
+- **Vechime_Imobil (factor)**: variabila obtina prin transformarea unei variabile numerice intr-o variabila categoriala, cu cel putin 3 categorii: "Vechi (Pre-1977)", "Clasic (1977-2000)", "Nou (Post-2000)"
+
+- **Compartimentare (factor)**: Decomandat, Semidecomandat, Nespecificat. Vom elimina aceasta variabila imediat.
+
+- **Tip_Zona (factor)**: Premium ('Copou-Saras', 'Centru-Civic'), Standard/Urban ('Tatarasi-Tudor', 'Podu-Ros-Cantemir', 'Pacurari-Canta', 'Alexandru-Dacia'), Accesibil/Rezidential ('Nicolina-CUG', 'Galata-Frumoasa')
+
+In cazul de fata coloana **X** contine indicii ramasi in urma curatarii deci va trebui sa o scoatem. Coloana **Compartimentare** a fost pastrata pentru a demonstra limitarile scraping-ului, foarte multe observatii fiind de tipul "Nespecificat" deoarece scraping-ul s-a realizat pe pagina principala cu anunturile si descrierile anunturilor erau doar un preview. Ca sa fi accesat intreaga descriere trebuie deschis fiecare anunt in parte si extras continutul.
+
+```{r}
+names(df)
+```
+
+```{r}
+glimpse(df)
+```
+
+```{r}
+dim(df)
+```
+Eliminam coloanele mentionate mai sus:
+
+```{r}
+drops <- c("X", "Compartimentare")
+df <- df[,!(names(df) %in% drops )]
+```
+
+```{r}
+dim(df)
+```
+
+```{r}
+glimpse(df)
+```
+
+Vrem sa transformam variabilele de tip chr in factor, pentru a le trata corect in analizele statistice si in modelele de regresie. "Zona", "Vechime_Imobil", "Tip_Zona" sunt gandite sa fie de tip factor.
+
+```{r}
+df$Zona <- as.factor(df$Zona)
+df$Vechime_Imobil <- as.factor(df$Vechime_Imobil)
+df$Tip_Zona <- as.factor(df$Tip_Zona)
+```
+
+```{r}
+glimpse(df)
+```
+
+Mult mai bine, acum tipul variabilelor este cel corect.
+
+```{r}
+summary(df$Pret)
+```
+
+```{r}
+summary(df$Suprafata_Utila)
+```
+
+```{r}
+summary(df$Camere)
+```
+
+OBS:
+
+- Avem apartamente pana in 3 camere
+
+- Setul de date a fost explorat si curatat anterior
+
+```{r}
+hist(df$Pret, breaks=20, main="Distributia Preturilor", col="skyblue")
+```
+
+Distributia este apropiata de una normala, dar usor asimetrica spre dreapta.
+
+Traducere:
+
+- Sunt cateva preturi mai mari care trag coada spre dreapta
+
+Zona centrala (intervalul de pret standard/cel mai frecvent):
+
+- Majoritatea valorilor sunt intre 70-130 de mii
+
+- Varful distributiei pare in jur de 90-100 de mii
+
+Valori extreme/outlieri:
+
+- Exista cateva valori mici (40-50 mii), dar si valori foarte mari (160-200 mii)
+
+- Nu par outlieri extrem de agresivi (nu sunt erori), dar preturile mari sunt mai rare
+
+Implicatii statistice:
+
+- Media probabil este putin mai mare decat mediana, din cauza asimetriei spre dreapta
+
+```{r}
+mean(df$Pret)
+median(df$Pret)
+```
+
+Se confirma ideea, media fiind 100 mii in timp ce mediana 98 de mii
+
+
+```{r}
+boxplot(df$Pret, main = "Identificare outlieri Pret", horizontal = T)
+```
+
+In curatarea anterioara s-a folosit Interquartile Range (IQR) pentru detectarea outlierilor de Pret.
+
+Aceeasi metoda s-a folosit si pentru detectarea outlierilor de Suprafata_Utila, Camere, Pret_mp.
+
+Au fost eliminate apartamentele cu o suprafata utila mai mica de 40mp, dar cu un pret mai mare de 75 de mii de euro (apartamente mici, dar neobisnuit de scumpe). La fel si apartamentele cu o suprafata utila mai mare de 80mp, dar cu un pret mai mic de 130 mii (apartamente mari, dar neobisnuit de ieftine).
+
+Aceasta etapa documentata in fisierul *2_data_cleaning_etl.ipynb* (sectiunile IQR si Outlieri) a avut ca scop cresterea robustetii modelelor de regresie prin eliminarea zgomotului din date.
+
+```{r}
+boxplot(df$Pret_mp, main = "Identificare outlieri Pret_mp", horizontal = T)
+```
+
+```{r}
+boxplot(df$Camere, main = "Identificare outlieri Camere", horizontal = T)
+```
+
+```{r}
+boxplot(df$Suprafata_Utila, main = "Identificare outlieri Suprafata_Utila", horizontal = T)
+```
+
+hist(df$Pret, breaks=20, main="Distributia Preturilor", col="skyblue")
+
+```{r}
+hist(df$Camere, breaks = 10, main="Distributia numarului de camere")
+```
+
+Piata este dominata de apartamente cu 2 camere, cele cu 3 camere fiind a doua cea mai frecventa categorie.
+
+Interpretare practica:
+
+- Oferta in Iasi este orientata catre:
+
+  - Cupluri/familii mici (2 camere)
+  
+  - Intr-o masura mai mica, familii mai mari (3 camere)
+  
+
+```{r}
+table(df$Camere)
+```
+
+```{r}
+prop.table(table(df$Camere))
+```
+
+Jumatate (50%) din numarul de oferte sunt apartamente de 2 camere.
+
+
+
+
+
+
+
 
