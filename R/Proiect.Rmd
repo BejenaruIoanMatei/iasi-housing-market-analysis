@@ -391,13 +391,80 @@ Desi in primul grafic apareau multe observatii peste linia rosie, graficul Resid
   
 Asadar, modelul este robust si poate fi folosit pentru predictie fara sa eliminam observatiile care depasesc pragul teoretic de 4/n. 
 
+## Regresie liniara multipla
 
+Scopul analizei:
 
+- Imbunatatirea capacitatii de predictie a modelului prin introducerea factorilor de control: numarul de camere (Camere) si locatia (Tip_Zona)
 
+```{r}
+regresie_multipla <- lm(Pret ~ Suprafata_Utila + Camere + Tip_Zona, data = df)
+```
 
+```{r}
+summary(regresie_multipla)
+```
 
+## Interpretarea rezultatelor
 
+### 1. Estimarea si testarea raportului de determinatie (R squared):
 
+- R squared = 0.7642 - comparativ cu 0.7404 (Modelul de regresie liniara simpla), modelul multiplu explica mai bine pretul (76% fata de 74%)
 
+- Adjusted R squared = 0.7619 - la regresia multipla ne uitam la acest parametru pentru ca el penalizeaza adaugarea de variabile care nu aduc valoare informationala. In cazul de fata, variabilele aduc valoare informationala.
+
+### 2. Scrierea ecuatiei estimate:
+
+- Pret = 6093.97 + 1581.96 * Suprafata_Utila + 3673.63 * Camere - 6599.21 * Periferie + 11258.40 * Premium + 124.25 * Standard, unde Periferie, Premium si Standard sunt categoriile variabilei Tip_Zona.
+
+- Variabila de referinta: Categoria Accesibil/Rezidential a fost aleasa ca punct de referinta. Intercept-ul (6093.97) reprezinta baza de pret pentru aceasta zona.
+
+### 3. Interpretarea parametrilor:
+
+- Intercept (6093.97): Baza de pret pentru zona aleasa ca punct de referinta (Accesibil/Rezindential)
+
+- Suprafata Utila (1581.96): Pentru fiecare mp in plus pretul creste cu 1581.96, mentinand restul variabilelor constante
+
+- Camere (3673.63): Fiecare camera suplimentara adauga in medie 3673.63 euro la pretul apartamentului
+
+- Zona Periferie (- 6599.21): Un apartament la periferie este in medie mai ieftin cu aproximativ 6600 de euro decat unul intr-o zona accesibila precum [Nicolina-CUG, Galata-Frumoasa].
+
+- Zona Premium (11258.40): Un apartament intr-o zona premium este cu 11 mii de euro mai scump decat unul similar dar intr-o zona accesibila.
+
+- Zona Standard(124.25): Un apartament standard este similar la pret cu unul accesibil, diferenta fiind doar de 124 de euro.
+
+- OBS:
+
+  - Zona Standard/Urban are p-value = 0.9 > 0.05. Statistic vorbind, nu exista o diferenta semnificativa de pret intre zona standard si cea accesibila.
+
+### 4. Testarea semnificatiei parametrilor
+
+- Ipoteza nula H0: toti coeficientii sunt 0 inafara de intercept (variabilele nu conteaza)
+
+- Ipoteza alternativa H1: cel putin un coeficient este diferit de 0 (macar o variabila conteaza)
+
+Daca p-value < 0.05 respingem H0, din punct de vedere statistic variabila are semnificatie, avand un impact asupra pretului.
+
+La un prag de semnificatie de 0.05:
+
+- Intercep = 0.02 < 0.05, Semnificativ
+
+- Suprafata_Utila < 2e-16, Foarte Semnificativ
+
+- Camere = 0.02 < 0.05, Semnificativ
+
+- Tip_ZonaPeriferie = 0.01 < 0.05, Semnificativ
+
+- Tip_ZonaPremium < 3.8e-08, Foarte Semnificativ
+
+- Tip_ZonaStandard/Urban = 0.9 > 0.05, Deloc Semnificativ
+
+Concluzii asupra parametrilor:
+
+- Suprafata_Utila si Tip_ZonaPremium sunt cei mai puternici predictori ai pretului, avand cele mai mici p-values.
+
+- Camere si Tip_ZonaPeriferie sunt la fel niste predictori valizi din punct de vedere statistic (au p-values < 0.05)
+
+### 5. Testarea modelului
 
 
