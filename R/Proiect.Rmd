@@ -258,8 +258,146 @@ prop.table(table(df$Vechime_Imobil))
 
 Cea mai mare majoritate a blocurilor sunt clasice (perioada 1977-2000), urmand cele Noi (>2000)
 
-```{r}
+# Analiza de regresie
 
+## Regresie liniara simpla
+
+### Scopul analizei:
+
+- Vrem sa vedem impactul suprafetei utile (variabila independenta) asupra pretului apartamentului (variabila dependenta)
+
+```{r}
+regresie_simpla <- lm(Pret ~ Suprafata_Utila, data = df)
 ```
+
+```{r}
+summary(regresie_simpla)
+```
+
+## Interpretarea rezultatelor
+
+### 1.  Estimarea si testarea raportului de determinatie (R squared):
+
+- R squared = 0.7404, adica 74% din variatia pretului este explicata de suprafata utila
+
+- Testarea acestuia este confirmata de F-statistic: 1477 cu un p-value < 2.2e-16, adica raportul de determinatie este semnificativ statistic (modelul este util)
+
+
+### 2.  Scrierea ecuatiei estimate:
+
+- Pret = 6486.05 + 1741.96 * Suprafata_Utila
+
+### 3.  Interpretarea parametrilor:
+
+- Intercept = 6486.05 - valoarea teoretica a pretului pentru o suprafata de 0 mp 
+
+- Suprafata_Utila = 1741.96 - la fiecare mp adaugat, pretul apartamentului creste in medie cu 1741.96 euro
+
+### 4.  Testarea semnificatiei parametrilor:
+
+- Pentru coeficientul suprafetei, valoarea t = 38.434 si p < 2e-16 < 0.05, indica faptul ca suprafata este un predictor semnificativ
+
+### 5. Testarea modelului:
+
+Testarea semnificatiei globale (testul F)
+
+- Ipoteza nula H0: Toti coeficientii (in afara de intercept) sunt 0 (modelul nu e bun)
+
+- Ipoteza alternativa H1: Cel putin un coeficient este diferit de 0
+
+- Rezultat: p-value < 2.2e-16 < 0.05, respingem H0.
+
+- Concluzie: Cu un risc asumat de 5%, cel putin un coeficient este diferit de 0, modelul fiind valid statistic
+
+Testarea ipotezelor pe reziduuri (Teste formale)
+
+a.  Testul pentru normalitate (Shapiro-Wilk)
+
+```{r}
+shapiro.test(residuals(regresie_simpla))
+```
+
+- Ipoteza nula H0: reziduurile sunt distribuite normal
+
+- Ipoteza alternativa H1: reziduurile nu sunt distribuite normal
+
+- Rezultat: p-value = 0.02 < 0.05, respingem H0.
+
+- Concluzie: Cu un risc asumat de 5%, reziduurile nu urmeaza o distributie normala, abaterea fiind relevanta din punct de vedere statistic
+
+- W = 0.99365 apropiat de 1, ceea ce sugereaza abateri minore de la normalitate
+
+Totusi, avand in vedere dimensiunea mare a esantionului (520 observatii) si faptul ca statistica W este apropiata de 1, abaterea de la normalitate este redusa si nu afecteaza semnificativ validitatea modelului.
+
+b.  Verificarea omoscedasticitatii (grafic reziduuri vs valori estimate)
+
+```{r}
+plot(regresie_simpla$fitted.values, residuals(regresie_simpla),
+     xlab = "Valori estimate",
+     ylab = "Reziduuri")
+abline(h = 0, col = "red")
+```
+Liniaritatea modelului:
+
+- Reziduurile sunt distribuite in jurul valorii 0 (linia rosie)
+
+- Nu apare un tipar clar (nu pare sa fie forma de U sau curba)
+
+- Majoritatea punctelor sunt relativ simetric dispuse deasupra si sub axa 0
+
+Problema minora:
+
+- Pentru valori estimate mai mari (dreapta graficului), dispersia reziduurilor scade (usoara forma de evantai). Posibil ca variatia reziduurilor sa nu fie perfect constanta
+
+### 6.  Identificarea punctelor de influenta si grafice pentru reziduuri:
+
+```{r}
+cooks_d <- cooks.distance(regresie_simpla)
+
+plot(cooks_d, type = "h", main = "Distanta Cook pentru Modelul Simplu", 
+     ylab = "Distanta Cook", xlab = "Indice Observatie")
+abline(h = 4/nrow(df), col = "red", lty = 2)
+```
+
+- Axa X (Indice Observatie) - fiecare apartament individual din baza mea de date (1-520)
+
+- Axa Y (Distanta Cook) - masoara cat de mult se schimba coeficientii modelului daca acea observatie ar fi eliminata. Cu cat bara este mai inalta cu atat impactul acelui apartament asupra liniei de regresie este mai mare
+
+- Linia rosie (Pragul Critic) - este setata la 4/n (n = 520). Orice bara care trece de aceasta linie este considerata un punct de influenta (din punct de vedere statistic).
+
+Undeva la 10-15 observatii sar mult peste linia rosie (pragul critic). Cu aproximatie 20 de observatii trec pragul.
+
+- Aceste puncte de influenta nu sunt neaparat erori, ci niste apartamente atipice. De exemplu:
+
+  - Putem avea un apartament foarte mic dar intr-o zona extrem de buna, care are un pret de vanzare cu mult peste cat ar valora altele de aceeasi suprafata
+  
+  - Putem avea un penthouse de lux care are un pret atat de mare incat trage linia de regresie in sus, alterand estimarea pentru restul apartamentelor obisnuite
+  
+Vom pastra aceste valori deoarece reprezinta tranzactii reale pe piata din Iasi, insa prezenta lor explica de ce modelul ar putea avea erori mai mari in segmentele de pret extrem.
+
+```{r}
+plot(regresie_simpla)
+```
+
+### Important
+
+Desi in primul grafic apareau multe observatii peste linia rosie, graficul Residuals vs Leverage demonstreaza ca acele puncte nu strica modelul:
+
+  - Absenta zonelor critice: Toate observatiile sunt grupate in partea stanga, departe de zonele de pericol din colturile din dreapta sus/jos
+  
+  - Punctele etichetate (67, 251, 501): R eticheteaza automat cele mai extreme puncte. Chiar daca observatia 67 are un leverage mai mare si observatiile 251 si 501 au reziduuri mai mari, ele nu au o combinatie destul de puternica de ambele pentru a devia linia de regresie
+  
+  - Linia rosie: este aproape perfect orizontala si suprapusa peste linia punctata de la 0. Acest lucru indica faptul ca nu exista un tipar sistematic de eroare si ca modelul este stabil.
+  
+Asadar, modelul este robust si poate fi folosit pentru predictie fara sa eliminam observatiile care depasesc pragul teoretic de 4/n. 
+
+
+
+
+
+
+
+
+
 
 
