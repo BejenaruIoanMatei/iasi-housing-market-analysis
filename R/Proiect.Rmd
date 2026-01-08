@@ -337,6 +337,7 @@ plot(regresie_simpla$fitted.values, residuals(regresie_simpla),
      ylab = "Reziduuri")
 abline(h = 0, col = "red")
 ```
+
 Liniaritatea modelului:
 
 - Reziduurile sunt distribuite in jurul valorii 0 (linia rosie)
@@ -466,5 +467,134 @@ Concluzii asupra parametrilor:
 - Camere si Tip_ZonaPeriferie sunt la fel niste predictori valizi din punct de vedere statistic (au p-values < 0.05)
 
 ### 5. Testarea modelului
+
+Testarea semnificatiei globale (Testul F):
+
+- F-statistic = 333.2 cu un p-value < 2.2e-16 < 0.05
+
+- Interpretare:
+
+  - p-value este mult mai mic decat 0.05, asadar modelul este valid statistic. Cel putin una din variabilele incluse explica in mod real variatia pretului
+  
+Testarea ipotezelor pe reziduuri (Teste formale):
+
+a.  Testul pentru normalitate (Shapiro-Wilk)
+
+```{r}
+shapiro.test(residuals(regresie_multipla))
+```
+
+- Ipoteza nula H0: reziduurile sunt distribuite normal
+
+- Ipoteza alternativa H1: reziduurile nu sunt distribuite normal
+
+- Rezultat: p-value = 0.01743 < 0.05, respingem H0.
+
+- Concluzie: Cu un risc asumat de 5%, reziduurile nu urmeaza o distributie normala, abaterea fiind relevanta din punct de vedere statistic
+
+- W = 0.99365 apropiat de 1, ceea ce sugereaza abateri minore de la normalitate
+
+Totusi, avand in vedere dimensiunea mare a esantionului (520 observatii) si faptul ca statistica W este apropiata de 1, abaterea de la normalitate este redusa si nu afecteaza semnificativ validitatea modelului.
+
+b. Verificarea omoscedasticitatii (grafic reziduuri vs valori estimate)
+
+```{r}
+plot(regresie_multipla$fitted.values, residuals(regresie_multipla),
+     xlab = "Valori estimate",
+     ylab = "Reziduuri")
+abline(h = 0, col = "red")
+```
+
+Liniaritatea modelului:
+
+- Reziduurile sunt distribuite in jurul valorii 0 (linia rosie)
+
+- Nu apare un tipar clar (nu pare sa fie forma de U sau curba)
+
+- Majoritatea punctelor sunt relativ simetric dispuse deasupra si sub axa 0
+
+Problema minora:
+
+- Pentru valori estimate mai mari (dreapta graficului), dispersia reziduurilor scade (usoara forma de evantai). Posibil ca variatia reziduurilor sa nu fie perfect constanta
+
+### 6. Identificarea punctelor de influenta si grafice pentru reziduuri:
+
+```{r}
+cooks_d <- cooks.distance(regresie_multipla)
+
+plot(cooks_d, type = "h", main = "Distanta Cook pentru Modelul Multiplu", 
+     ylab = "Distanta Cook", xlab = "Indice Observatie")
+abline(h = 4/nrow(df), col = "red", lty = 2)
+```
+
+Interpretare:
+
+- Observam in jur de 30 de puncte care depasesc pragul critic (linia rosie). Aceste puncte reprezinta apartamente atipice care au un impact mai mare asupra coeficientilor modelului. Exemple ar putea fi urmatoarele cazuri:
+
+  - Apartamente mici intr-o zona premium cu preturi mult peste medie
+  
+  - Apartamente mari in zone periferice cu preturi neasteptat de mari
+  
+  - Penthouse-uri cu finisaje de lux la periferie
+  
+Vom pastra aceste observatii deoarece reprezinta apartamente reale pe piata imobiliara din Iasi, chiar daca introduc variabilitate in model.
+
+```{r}
+plot(regresie_multipla)
+```
+
+1.  Residuals vs Fitted:
+
+- Reziduurile sunt distribuite relativ uniform in jurul liniei de la 0
+
+- Nu se observa o forma clara (U sau curba), ceea ce confirma liniaritatea
+
+- Usoara dispersie mai mare la valori estimate ridicate (usoara forma de evantai), dar nu e ingrijorator (e un efect similar cu cel de la modelul anterior)
+
+2. Normal Q-Q:
+
+- Majoritatea punctelor se afla pe diagonala, sugerand o distributie aproape normala
+
+- Cateva abateri minore in cozile distributiei (punctele 88, 251, 501)
+
+- In contextul unui esantion de 520 de observatii, acele mici abateri nu afecteaza validitatea modelului
+
+3. Scale-Location:
+
+- Linia nu este perfect orizontala, indicatie ca variabilitatea reziduurilor creste odata cu pretul estimat (semn de heteroscedasticitate moderata)
+
+- Dispersie mai mare la valori mari ale pretului
+
+  - Pentru preturi mai mici (40-80 mii) reziduurile sunt mai concentrate
+  
+  - Pentru preturi mai mari (120+ mii) dispersia este mai mare
+  
+  - Modelul face erori mai mari pentru apartamentele scumpe
+  
+4.  Residuals vs Leverage:
+
+- Majoritatea observatiilor sunt concentrate in partea stanga a graficului (leverage mic) si au reziduuri standardizate intre -2 si 2. Modelul pare sa fie stabil pentru marea majoritate a datelor
+
+- Sunt cateva puncte intre 0.02 si 0.045, care corespund probabil unor apartamente:
+
+  - super mari
+  
+  - combinatii rare (foarte mari + zona premium)
+  
+- Observatiile etichetate (88, 5, 275) au fie leverage mai mare, fie reziduuri mai mari, dar nu ambele simultan. Observatia 275 pare sa aiba un leverage moderat si un reziduu pozitiv (posibil sa fie o observatie usor influenta).
+
+- Nicio observatie nu depaseste limitele Cook (nu exista valori cu D > 1)
+
+### Mica concluzie
+
+Modelul multiplu este robust si respecta ipotezele de baza ale regresiei liniare.
+
+  - Punctele de influenta identificate nu compromit validitatea modelului si pot fi pastrate in analiza.
+  
+Modelul poate fi folosit pentru predictie.
+
+
+
+
 
 
