@@ -593,6 +593,115 @@ Modelul multiplu este robust si respecta ipotezele de baza ale regresiei liniare
   
 Modelul poate fi folosit pentru predictie.
 
+# Analiza de corelatie
+
+##  Estimarea coeficientilor de corelatie bivariati
+
+### Scopul analizei:
+
+- Identificarea si cuantificarea relatiilor liniare dintre variabilele numerice: Pret, Suprafata_Utila, Camere
+
+- Cum Pret_mp este obtinut prin Pret/Suprafata_Utila, inseamna ca este o variabila determinist derivata din alte doua care vor fi incluse in matricea de corelatie. Asadar, nu ar fi corect sa punem si Pret_mp in matrice daca includ deja Pret si Suprafata_Utila.
+
+- Determinarea intensitatii si directiei acestor relatii
+
+Pentru inceput, vom selecta variabilele numerice din setul de date si vom calcula matricea de corelatie
+
+```{r}
+df %>%
+  select(Pret) %>%
+  head(n = 5)
+```
+```{r}
+glimpse(df)
+```
+
+```{r}
+var_numerice <- df %>% select(Pret, Suprafata_Utila, Camere)
+```
+
+```{r}
+head(var_numerice, n = 5)
+```
+
+Matricea de corelatie:
+
+```{r}
+cor(var_numerice)
+```
+
+### Interpretarea coeficientilor de corelatie:
+
+- Coeficientul de corelatie (r) masoara intensitatea si directia relatiei liniare dintre doua variabile:
+
+  - r > 0: corelatie pozitiva (una creste, cealalta creste)
+  
+  - r < 0: corelatie negativa (una creste, cealalta scade)
+  
+  - |r| apropiat de 1: corelatie puternica
+  
+  - |r| apropiat de 0.5: corelatie medie
+  
+  - |r| apropiat de 0: corelatie slaba sau absenta
+  
+### Interpretarea valorilor estimate
+
+1.  Pret - Suprafata_Utila
+
+  - r = 0.86 
+  
+  - Corelatie pozitiva puternica (apropiat de 1), indicand ca apartamentele mari au preturi mari
+  
+  - La cresterea suprafetei, pretul tinde sa creasca proportional
+  
+2.  Pret - Camere
+
+  - r = 0.71
+  
+  - Corelatie pozitiva puternica (apropiat de 1), indicand ca apartamentele cu mai multe camere sunt mai scumpe
+  
+  - Relatie mai slaba decat cea cu suprafata, deoarece numarul de camere nu cuprinde intreaga dimensiune a apartamentului
+  
+3. Suprafata_Utila - Camere
+
+  - r = 0.80
+  
+  - Corelatie pozitiva puternica (apropiat de 1), indicand ca apartamentele mari au mai multe camere
+  
+  - O relatie destul de logica si intuitiva pe piata imobiliara
+  
+  
+```{r}
+library(corrplot)
+```
+Pentru a vizualiza mai bine:
+
+```{r}
+corrplot(cor(var_numerice), method = "circle", type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         addCoef.col = "white", number.cex = 0.7,
+         title = "Matricea de Corelatie - Variabile Numerice",
+         mar = c(0,0,2,0))
+```
+
+- Cercurile mari si inchise la culoare indica corelatii puternice
+
+- Cercurile mici indica corelatii slabe
+
+- Albastru = corelatie pozitiva
+
+- Rosu = corelatie negativa
+
+Dupa cum se poate vedea toate corelatiile sunt pozitive, puternice (0.86, 0.80, 0.71).
+
+
+
+
+
+
+
+
+
 
 
 
