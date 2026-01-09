@@ -593,6 +593,18 @@ Modelul multiplu este robust si respecta ipotezele de baza ale regresiei liniare
   
 Modelul poate fi folosit pentru predictie.
 
+### Tabel comparativ cu cele doua modele
+
+```{r}
+data.frame(
+     Model = c("Simplu", "Multiplu"),
+     R_squared = c(0.7404, 0.7642),
+     Adj_R_squared = c(0.7399, 0.7619),
+     F_statistic = c(1477, 333.2),
+     Variabile = c("Suprafata_Utila", "Suprafata_Utila + Camere + Tip_Zona")
+   )
+```
+
 # Analiza de corelatie
 
 ##  Estimarea coeficientilor de corelatie bivariati
@@ -694,16 +706,318 @@ corrplot(cor(var_numerice), method = "circle", type = "upper",
 
 Dupa cum se poate vedea toate corelatiile sunt pozitive, puternice (0.86, 0.80, 0.71).
 
+Scatterplot pentru cea mai importanta relatie, Pret - Suprafata_Utila:
 
+```{r}
+plot(df$Suprafata_Utila, df$Pret, 
+     xlab = "Suprafata Utila (mp)", 
+     ylab = "Pret (EUR)",
+     main = "Relatia dintre Suprafata si Pret",
+     pch = 19, col = "steelblue")
+abline(lm(Pret ~ Suprafata_Utila, data = df), col = "red", lwd = 2)
+```
 
+Graficul confirma vizual corelatia puternica pozitiva dintre Pret si Suprfata Utila, punctele fiind concentrate in jurul liniei de regresie, ceea ce sugereaza o relatie liniara clara.
 
+## Testarea coeficientilor de corelatie bivariati
 
+### Scopul analizei:
 
+- Testarea semnificatiei statistice a coeficientilor de corelatie
 
+- Determinarea daca relatiile observate sunt semnificative statistic sau doar pura intamplare
 
+### Testarea corelatiei Pret - Suprafata_Utila
 
+```{r}
+cor.test(df$Pret, df$Suprafata_Utila)
+```
 
+Implicit se foloseste Pearson ca method.
 
+### Interpretare
 
+- Ipoteze:
 
+  - Ipoteza nula H0: Nu exista corelatie liniara intre Pret si Suprafata_Utila, adica r = 0
 
+  - Ipoteza alternativa H1: Exista corelatie liniara, adica r != 0
+
+- Coeficientul de corelatie estimat: r = 0.8604509, valoare pozitiva foarte puternica
+
+- Testul de semnificatie (t-test pentru corelatie): 
+
+  - t = 38.434
+  
+  - p-value < 2.2e-16 < 0.05
+  
+  - H0: nu exista corelatie in populatie
+  
+  - H1: exista corelatie
+  
+  - Cum p-value < 0.05 respingem H0. Cu un risc asumat de 5%, exista o corelatie liniara pozitiva semnificativa statistic intre Pret si Suprafata_Utila.
+  
+Ca interpretare economica:
+
+- Apartamentele cu suprafata mai mare tind sa aiba preturi semnificativ mai mari
+
+### Testarea corelatiei Pret - Camere
+
+```{r}
+cor.test(df$Pret, df$Camere)
+```
+
+### Interpretare
+
+- Ipoteze:
+
+  - Ipoteza nula H0: Nu exista corelatie liniara intre Pret si Camere, adica r = 0
+
+  - Ipoteza alternativa H1: Exista corelatie liniara, adica r != 0
+
+- Coeficientul de corelatie estimat: r = 0.7136459, valoare pozitiva foarte puternica
+
+- Testul de semnificatie (t-test pentru corelatie): 
+
+  - t = 23.187
+  
+  - p-value < 2.2e-16 < 0.05
+  
+  - H0: nu exista corelatie in populatie
+  
+  - H1: exista corelatie
+  
+  - Cum p-value < 0.05 respingem H0. Cu un risc asumat de 5%, exista o corelatie liniara pozitiva semnificativa statistic intre Pret si Camere.
+  
+Ca interpretare economica:
+
+- Apartamentele cu mai multe camere tind sa aiba preturi semnificativ mai mari
+
+### Testarea corelatiei Suprafata_Utila - Camere
+
+```{r}
+cor.test(df$Suprafata_Utila, df$Camere)
+```
+
+### Interpretare
+
+- Ipoteze:
+
+  - Ipoteza nula H0: Nu exista corelatie liniara intre Suprafata_Utila si Camere, adica r = 0
+
+  - Ipoteza alternativa H1: Exista corelatie liniara, adica r != 0
+
+- Coeficientul de corelatie estimat: r = 0.8021293, valoare pozitiva foarte puternica
+
+- Testul de semnificatie (t-test pentru corelatie): 
+
+  - t = 30.572
+  
+  - p-value < 2.2e-16 < 0.05
+  
+  - H0: nu exista corelatie in populatie
+  
+  - H1: exista corelatie
+  
+  - Cum p-value < 0.05 respingem H0. Cu un risc asumat de 5%, exista o corelatie liniara pozitiva semnificativa statistic intre Suprafata_Utila si Camere.
+  
+Ca interpretare economica:
+
+- Apartamentele cu o suprafata mai mare tind sa aiba mai multe camere.
+
+### Observatie importanta
+
+```{r}
+num_cols <- c("Pret", "Suprafata_Utila", "Camere", "Pret_mp")
+
+corr_matrix <- cor(df[, num_cols])
+
+corrplot(corr_matrix,
+         method = "color",
+         type = "upper",
+         addCoef.col = "black",
+         number.cex = 0.8,
+         tl.col = "black",
+         tl.srt = 45,
+         col = colorRampPalette(c("blue", "white", "red"))(200),
+         title = "Matricea de corelatie Pearson",
+         mar = c(0, 0, 2, 0))
+
+```
+
+- Corelatie negativa intre Suprafata_Utila si Pret_mp ?
+
+  - De ce ?
+
+    - Cu cat un apartament este mai mare, cu atat pretul pe mp tinde sa scada usor
+
+    - O garsoniera de 25 mp are costuri de constructie si finisare concentrate pe o suprafata mica, deci se vinde cu un pret pe mp mai mare. Un apartament cu 60 mp distribuie aceleasi costuri fixe pe mai multi mp de spatiu gol, ceea ce face ca media pe mp sa fie mai mica
+
+    - De ce este o valoare mica (0.11) ? Pentru ca in Iasi sunt multe apartamente mari in zone de lux (Copou, Centru) care au pret pe mp foarte mare, ceea ce trage corelatia inapoi spre zero
+
+    
+```{r}
+accesibil <- df[df$Tip_Zona == "Accesibil/Rezidential", ]
+
+corr_matrix <- cor(accesibil[, num_cols])
+
+corrplot(corr_matrix,
+         method = "color",
+         type = "upper",
+         addCoef.col = "black",
+         number.cex = 0.8,
+         tl.col = "black",
+         tl.srt = 45,
+         col = colorRampPalette(c("blue", "white", "red"))(200),
+         title = "Matricea de corelatie Pearson – Zona Accesibil/Rezidential",
+         mar = c(0, 0, 2, 0))
+
+```
+    
+Facand matricea de corelatie pentru apartamentele din zona Accesibil/Rezidential, se confirma ideea ca apartamentele de lux trag corelatia inapoi spre 0
+
+- Impreuna cu cele de lux: -0.11
+
+- Doar cu cele accesibile: -0.26
+
+### O alta observatie importanta
+
+Vom testa diferenta dintre doua medii (esantioane independente): Apartamente Noi vs Vechi
+
+```{r}
+table(df$Vechime_Imobil)
+```
+
+```{r}
+pret_noi <- df$Pret_mp[df$Vechime_Imobil == "Nou (Post-2000)"]
+
+pret_vechi <- df$Pret_mp[df$Vechime_Imobil == "Vechi (Pre-1977)"]
+```
+
+```{r}
+length(pret_noi)
+```
+
+```{r}
+length(pret_vechi)
+```
+
+Inainte de a alege testul t potrivit, verificam daca variantele celor doua grupuri sunt egale (ipoteza de omogenitate a variantelor)
+
+```{r}
+library(car)
+```
+
+```{r}
+leveneTest(Pret_mp ~ Vechime_Imobil,
+           data = df,
+           subset = Vechime_Imobil %in% c("Nou (Post-2000)", "Vechi (Pre-1977)"))
+```
+
+- H0: Variantele sunt egale (exista omogenitate)
+
+- H1: Variantele nu sunt egale
+
+- p-value = 1.516e-08 < 0.05, respingem H0
+
+- Concluzie: Cu un risc asumat de 5%, exista o diferenta semnificativa intre variantele celor doua grupuri (nou vs vechi)
+
+Deci setam equal_var la False:
+
+```{r}
+t.test(Pret_mp ~ Vechime_Imobil, 
+       data = df, 
+       subset = Vechime_Imobil %in% c("Nou (Post-2000)", "Vechi (Pre-1977)"),
+       var.equal = F)
+```
+
+### Interpretare
+
+Ipoteze:
+
+- H0: m_{pret_noi} = m_{pret_vechi}
+
+- H1: m_{pret_noi} != m_{pret_vechi}
+
+p-value = 0.9 > 0.05, nu respingem ipoteza nula H0
+
+Concluzie:
+
+Nu sunt destule dovezi statistice care sa arate ca pretul mediu pe mp la apartamentele noi difera semnificativ de pretul mediu pe mp la apartamentele vechi
+
+Cele doua medii nu difera semnificativ, la un nivel de semnificatie de 5%
+
+### Traducere
+
+Ne-am fi asteptat ca mediile sa difere semnificativ, dar am primit ca rezultat ca sunt chiar foarte asemenatoare cu o valoare foarte mare de 0.9
+
+De ce ?
+
+- Locatia: Multe apartamente Vechi sunt in Centru, Copou, Podu Ros, in timp ce multe apartamente Noi sunt la periferie. Pamantul e mai scump in Copou decat la periferie, deci locatia bate vechimea, iar mediile se echilibreaza
+
+- Renovarile: Apartamentele vechi scoase la vanzare sunt adesea renovate la conditii de lux, crescand pretul pe mp
+
+Aceste doua explicatii ar putea conduce la echilibrarea mediilor
+
+# Concluzii
+
+Acest studiu a analizat mecanismele de formare a preturilor pe piata imobiliara din Iasi folosind un esantion de 520 apartamente obtinute 
+prin web scraping de pe Storia.
+
+## Constatari principale:
+
+### 1. Predictori ai pretului
+
+**Suprafata utila** este cel mai puternic predictor individual al pretului, explicand singura 74% din variatia preturilor. Relatia este pozitiva si liniara: fiecare metru patrat adaugat creste pretul mediu cu aproximativ 1,742 EUR.
+
+**Modelul multiplu** (Suprafata + Camere + Tip_Zona) imbunatateste capacitatea de predictie la 76.4% (R squared ajustat = 0.762), confirmand ca locatia si numarul de camere aduc valoare informationala in plus fata de modelul simplu unde aveam doar suprafata utila.
+
+### 2. Impactul zonei geografice
+
+**Zona Premium** (Copou-Centru) adauga in medie 11,258 EUR la pretul unui apartament, fiind a doua cea mai puternica variabila dupa suprafata.
+
+**Zona Standard/Urban** nu difera semnificativ de zona Accesibil/Rezidential, sugerand ca zonele precum Tatarasi, Podu Ros si Alexandru au preturi comparabile cu Nicolina si Galata.
+
+**Zona Periferie** este in medie cu 6,599 EUR mai ieftina decat zona accesibila. 
+
+### 3. Corelatii si relatii bivariante
+
+Toate corelatiile testate sunt **semnificative statistic**:
+
+- **Pret - Suprafata_Utila**: r = 0.86 (corelatie pozitiva foarte puternica)
+- **Pret - Camere**: r = 0.71 (corelatie pozitiva puternica)
+- **Suprafata_Utila - Camere**: r = 0.80 (corelatie pozitiva foarte puternica)
+
+### 4. Descoperiri surprinzatoare
+
+**a) Relatia Suprafata - Pret pe mp**
+
+Am identificat o corelatie negativa slaba intre suprafata si pretul pe metru patrat (r = -0.11). Acest rezultat aparent contradictoriu reflecta o realitate economica: apartamentele mici (garsoniere) au costuri fixe concentrate pe suprafata mica, rezultand un pret/mp mai mare, in timp ce apartamentele mari distribuie aceste costuri pe mai multi mp.
+
+Analiza segmentata pe zona Accesibil/Rezidential confirma aceasta tendinta, corelația devenind mai puternica (r = -0.26) atunci cand sunt eliminate apartamentele de lux.
+
+**b) Pretul pe mp: Apartamente Noi vs Vechi**
+
+Testul t pentru esantioane independente a aratat ca nu exista diferente semnificative intre pretul mediu pe mp al apartamentelor noi si vechi (p = 0.9). Acest rezultat surprinzator se explica prin:
+
+- Efectul locatiei: Multe apartamente vechi sunt situate in zone premium (Copou, Centru), in timp ce apartamentele noi sunt adesea la periferie
+
+- Renovarile: Apartamentele vechi scoase la vanzare sunt frecvent renovate la standarde moderne, crescand pretul pe mp
+
+Ca idee scurta: **Locatia bate vechimea**
+
+### 5. Limitari ale modelelor
+
+- **Heteroscedasticitate moderata**: Modelul de regresie multipla face erori mai mari pentru apartamentele scumpe (peste 120,000 EUR), dispersia reziduurilor crescand odata cu pretul estimat
+
+- **Abateri minore de la normalitate**: Testul Shapiro-Wilk respinge H0 (p = 0.017), insa W = 0.993 sugereaza practic abateri nesemnificative 
+
+- **Variabila nesemnificativa**: Zona Standard/Urban nu aduce valoare predictiva (p = 0.9) fata de zona de referinta Accesibil/Rezidential
+
+### Pentru cumparatori interesati de un apartament in Iasi:
+
+- Suprafata si locatia sunt cei mai importanti factori ai pretului
+
+- Apartamentele vechi renovate in zone centrale pot fi la fel de valoroase ca apartamentele noi de la periferia orasului
+
+- Apartamentele mici (garsonierele) au un cost pe mp disproportionat de mare
