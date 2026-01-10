@@ -1,6 +1,6 @@
 ---
 title: "Piata Imobiliara din Iasi: Cand Locatia Depaseste Vechimea - Analiza de Regresie si Testare de Ipoteze"
-subtitle: "Proiect realizat in cadrul disciplinei *Introducere in R*"
+subtitle: "Proiect realizat in cadrul disciplinei *Introducere in R* sub coordonarea Prof. Viorica Daniela"
 author: "Bejenaru Ioan-Matei"
 date: "2026-01-06"
 output: pdf_document
@@ -959,6 +959,34 @@ De ce ?
 - Renovarile: Apartamentele vechi scoase la vanzare sunt adesea renovate la conditii de lux, crescand pretul pe mp
 
 Aceste doua explicatii ar putea conduce la echilibrarea mediilor
+
+### Interval de incredere pentru pretul mediu
+
+```{r}
+t.test(df$Pret_mp)$conf.int
+```
+
+- Suntem 95% convinsi ca media reala a preturilor din Iasi se situeaza intre **1847.087** si **1894.352** eur/mp
+
+### Exista asociere intre zona si vechimea imobilelor ?
+
+```{r}
+chisq.test(df$Tip_Zona, df$Vechime_Imobil)
+```
+
+- H0: Zona si vechimea sunt independente (gasesc la fel de multe blocuri noi in Copou cat in Galata)
+
+- H1: Exista o asociere intre zona si vechime
+
+Interpretare:
+
+- p-value < 2.2e-16 < 0.05, respingem H0
+
+- Cu un risc asumat de 5%, exista o asociere semnificativa intre tipul de zona si vechimea imobilelor
+
+Cu ce ma ajuta ?
+
+- In cadrul concluziei "Locatia bate vechimea": vechimea imobilelor nu este distribuita random in Iasi. Apartamentele vechi sunt in zone centrale si profita de acest lucru, in timp ce apartamentele noi sunt penalizate pentru ca sunt pe la periferia orasului.
 
 # Concluzii
 
