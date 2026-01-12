@@ -10,3 +10,8 @@ venv
 #data
 
 .Rproj.user
+
+# python pdfs
+
+notebooks/*.pdf
+
