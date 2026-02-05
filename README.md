@@ -11,6 +11,18 @@ The goal was to determine how factors like location (neighborhood), surface area
 
 - I have developed an interactive dashboard to synthesize the key findings of the statistical analysis.
 
+- You can view it here: [Tableau - Iasi Real Estate Market Analysis EN](https://public.tableau.com/views/Iasi-Real-Estate-Market-Analysis/Dashboard1?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)
+
+  -  The RO Version: [Tableau - Analiza Pieței Imobiliare din Iași RO](https://public.tableau.com/views/Piata-Imobiliara-Iasi/Dashboard1?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)
+
+### Some of the insights that are mentioned in the dashboard:
+
+  -  **The Age Paradox:** The Box Plot visualization confirms that location prestige (Premium) fully offsets property age; older units in prime locations maintain price parity with new builds in standard areas.
+
+  -  **Budget Efficiency:** The Lollipop Chart reveals up to a 40% variance in purchasable surface area for the same fixed budget (€100k) across different Iași neighborhoods.
+
+  -  **Size-to-Price Correlation:** The Scatter Plot highlights the "diminishing returns" phenomenon—as total surface area increases, the price per square meter tends to decrease.
+
 ## Key Insights
 
 -   **Location beats Age**: Welch’s T-test revealed no significant difference in price per squared meter between new buildings (Post-2000) and old buildings (Pre-1977). **This suggests that the premium location and infrastructure of older districts (e.g., Copou, City Center) fully compensate for the building's age.**
@@ -22,10 +34,13 @@ The goal was to determine how factors like location (neighborhood), surface area
 -   **Renovation Value**: The high price of older apartments is also driven by secondary market renovations; many "old" listings are renovated to modern luxury standards, effectively matching the price per squared meter of new apartments.
 
 ## Tech Stack & Skills
-* **Data Engineering (Python):** Pandas, NumPy (Data Cleaning, Feature Engineering)
-* **Visualization:** Matplotlib, Seaborn
-* **Statistical Analysis (Python):** Scikit-learn, Statsmodels (Regression Analysis, Hypothesis Testing)
-* **Statistical Analysis (R**): Tidyverse, Car, Corrplot (Hypothesis Testing, Multiple Regression, Residual Diagnostics)
+* **Data Engineering (Python):** Pandas, NumPy (Data Cleaning, Feature Engineering, Web Scraping)
+* **Statistical Analysis (R & Python):**
+  *  R: Tidyverse, Car, Corrplot (Multiple Regression, Residual Diagnostics, Hypothesis Testing)
+  *  Python: Scikit-learn, Statsmodels (Predictive Modeling, Regression Analysis)
+*  **Visualization & BI:**
+  *  Tableau: Interactive Dashboarding, Action Filters, KPI Tracking, Spatial Analysis
+  *  Python Libraries: Matplotlib, Seaborn (Exploratory Data Analysis)
 
 ## The Pipeline (ETL Process)
 
