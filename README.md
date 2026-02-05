@@ -7,6 +7,10 @@ This project provides a comprehensive analysis of the residential real estate ma
 
 The goal was to determine how factors like location (neighborhood), surface area, and building age influence the final listing price.
 
+## Data Visualization (Tableau)
+
+- I have developed an interactive dashboard to synthesize the key findings of the statistical analysis.
+
 ## Key Insights
 
 -   **Location beats Age**: Welch’s T-test revealed no significant difference in price per squared meter between new buildings (Post-2000) and old buildings (Pre-1977). **This suggests that the premium location and infrastructure of older districts (e.g., Copou, City Center) fully compensate for the building's age.**
