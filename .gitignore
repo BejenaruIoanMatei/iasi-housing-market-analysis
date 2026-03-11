@@ -5,6 +5,9 @@ todo.md
 # venv
 venv
 
+# env
+.env
+
 # macOS
 *.DS_STORE
 
