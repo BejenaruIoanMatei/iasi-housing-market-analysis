@@ -24,6 +24,7 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./pipeline/scraper:/opt/airflow/pipeline/scraper
+      - ./pipeline/transformer:/opt/airflow/pipeline/transformer
     depends_on:
       - db
     env_file:

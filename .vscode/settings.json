@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "./pipeline/scraper"
+        "./pipeline/scraper",
+        "./pipeline/transformer"
     ]
 }

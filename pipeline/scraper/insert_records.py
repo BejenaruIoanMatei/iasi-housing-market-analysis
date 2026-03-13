@@ -31,7 +31,7 @@ def create_table(conn):
                 description_raw TEXT,
                 url TEXT,
                 scraped_at TIMESTAMP
-            ); 
+            );
         """
         )
         conn.commit()
