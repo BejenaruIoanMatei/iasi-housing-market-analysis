@@ -1,16 +1,13 @@
 from scraper import scrape_page
 import psycopg2
-from dotenv import load_dotenv
 import os
-
-load_dotenv()
 
 def connect_to_db():
     print("Connectiong to the PostgreSQL database...")
     try:
         conn = psycopg2.connect(
-            host=os.getenv("POSTGRES_HOST", "localhost"),
-            port=5000,
+            host=os.getenv("POSTGRES_HOST", "db"),
+            port=5432,
             dbname=os.getenv("POSTGRES_DB"),
             user=os.getenv("POSTGRES_USER"),
             password=os.getenv("POSTGRES_PASSWORD")

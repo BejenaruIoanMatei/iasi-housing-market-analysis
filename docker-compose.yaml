@@ -23,8 +23,11 @@ services:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@db:5432/airflow_db
     volumes:
       - ./airflow/dags:/opt/airflow/dags
+      - ./pipeline/scraper:/opt/airflow/pipeline/scraper
     depends_on:
       - db
+    env_file:
+      - .env
     networks:
       - my-network
     command: >
