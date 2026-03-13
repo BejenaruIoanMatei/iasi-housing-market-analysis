@@ -5,6 +5,10 @@ todo.md
 # venv
 venv
 
+# env
+.env
+postgres/data/
+
 # macOS
 *.DS_STORE
 
