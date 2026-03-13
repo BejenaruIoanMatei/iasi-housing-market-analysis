@@ -34,13 +34,16 @@ The goal was to determine how factors like location (neighborhood), surface area
 -   **Renovation Value**: The high price of older apartments is also driven by secondary market renovations; many "old" listings are renovated to modern luxury standards, effectively matching the price per squared meter of new apartments.
 
 ## Tech Stack & Skills
-* **Data Engineering (Python):** Pandas, NumPy (Data Cleaning, Feature Engineering, Web Scraping)
+* **Data Engineering (Python):** Pandas, NumPy (Data Cleaning, Feature Engineering) Web Scraping, psycopg2
+* **Orchestration:** Apache Airflow 3.0 (Dockerized), DAG scheduling
+* **Database:** PostgreSQL 15 (raw + staging schemas)
 * **Statistical Analysis (R & Python):**
   *  R: Tidyverse, Car, Corrplot (Multiple Regression, Residual Diagnostics, Hypothesis Testing)
   *  Python: Scikit-learn, Statsmodels (Predictive Modeling, Regression Analysis)
 *  **Visualization & BI:**
   *  Tableau: Interactive Dashboarding, Action Filters, KPI Tracking, Spatial Analysis
   *  Python Libraries: Matplotlib, Seaborn (Exploratory Data Analysis)
+* **Infrastructure:** Docker Compose (PostgreSQL + Airflow)
 
 ## The Pipeline (ETL Process)
 
@@ -60,6 +63,43 @@ The goal was to determine how factors like location (neighborhood), surface area
 * **Correlation:** Identified a strong positive correlation between Surface Area and Price.
 * **Regression Model:** Built a Linear Regression model to predict apartment prices based on surface area and location.
 * **Hypothesis Testing:** Validated significant price differences between premium areas (Copou) and residential hubs (Nicolina).
+
+## Automated pipeline with Docker and Airflow
+
+Infrastructure (Docker Compose)
+
+```
+Docker Compose
+├── postgres        → db (2 schemas: dev.raw_listings, dev.staging_listings)
+├── airflow         → Orchestration (webserver + scheduler)
+├── scraper         → Python app (task in Airflow)
+└── transformer     → Python app (task in Airflow)
+```
+
+```
+scrape_listings (from Storia)
+      ↓
+load_raw          →  INSERT INTO dev.raw_listings (raw scraped data)
+      ↓
+transform_staging →  feature engineering, cleaning
+      ↓
+load_staging      →  INSERT INTO dev.staging_listings (structured into features)
+```
+
+## ELT vs ETL
+
+### Previous Version — ETL
+Scraper → Python cleaning → Statistical Analysis
+
+### Updated Version — ELT
+Scraper → PostgreSQL raw → SQL/Python transformed → analytics
+
+## Pipeline Demo
+
+```
+End-to-end pipeline demo: scraping → raw ingestion → staging transformation, orchestrated via Airflow.
+```
+Link: [Watch the pipeline demo](https://drive.google.com/file/d/1YeuS8sUdewJOf_E2g_kiV-rVHn_yVwuC/view?usp=sharing)
 
 ## Academic Context
 
