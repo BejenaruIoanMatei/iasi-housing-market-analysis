@@ -2,18 +2,17 @@
 
 ```
 Docker Compose
-├── postgres        → baza de date (3 scheme)
+├── postgres        → baza de date (2 scheme)
 ├── airflow         → orchestrare (webserver + scheduler)
 └── scraper         → Python app (rulat ca task în Airflow)
+└── transformer     → Python app (rulat ca task în Airflow) 
 ```
 
 ### Schema PostgreSQL
 
 ```
-raw.listings          → dump brut din scraper, neatins
-staging.listings      → curățat, tipuri corecte, deduplicat
-analytics.prices      → agregări pe timp (săptămânal / lunar)
-analytics.snapshots   → "fotografie" a pieței la fiecare run
+dev.raw_istings          → dump brut din scraper, neatins
+dev.staging_listings      → curățat, tipuri corecte, deduplicat
 ```
 
 ### DAG Airflow
@@ -21,28 +20,14 @@ analytics.snapshots   → "fotografie" a pieței la fiecare run
 ```
 scrape_listings
       ↓
-load_raw (INSERT în raw.listings cu scraped_at)
+load_raw (INSERT INTO raw_listings)
       ↓
-transform_staging (Python: curățare, categorii zone)
+transform_staging (Python: feature engineering, clearing data, categorii, zone)
       ↓
-build_analytics (SQL: agregări time series)
+load_staging (INSERT INTO staging_listings)
 ```
 
-### Layere Concrete
-
-```
-raw.listings          → exact ce vine din scraper, nimic atins
-                         + scraped_at TIMESTAMP adăugat automat
-
-staging.listings      → curățat în SQL:
-                         - prețuri parsate (string → numeric)
-                         - construction_year imputat
-                         - outlieri eliminați
-                         - zona categorizată (Premium/Standard/Accessible)
-
-analytics.avg_price_by_zone_month   → time series agregat
-analytics.market_snapshot           → starea pieței per run
-```
+Datele urmeaza a fi prelucrate ulterior de echipa de Analytics.
 
 ### Cu ce difera fata de restul proiectului
 
