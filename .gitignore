@@ -21,3 +21,12 @@ postgres/data/
 notebooks/*.pdf
 
 obs.todo
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
